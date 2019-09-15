@@ -1,45 +1,32 @@
-PRODUCT_VERSION_MAJOR = 23
+PRODUCT_VERSION_MAJOR = 16
 PRODUCT_VERSION_MINOR = 0
 
-ifeq ($(LINEAGE_VERSION_APPEND_TIME_OF_DAY),true)
-    LINEAGE_BUILD_DATE := $(shell date -u +%Y%m%d_%H%M%S)
-else
-    LINEAGE_BUILD_DATE := $(shell date -u +%Y%m%d)
-endif
+AEON_VERSION := 1.0
 
-# Set LINEAGE_BUILDTYPE from the env RELEASE_TYPE, for jenkins compat
+CURRENT_DEVICE := $(LINEAGE_BUILD)
+DEVICE_LIST := $(file < vendor/official_devices/OTA/aeon.devices)
+MAINTAINER_LIST := $(file < vendor/official_devices/OTA/aeon.maintainers)
 
-ifndef LINEAGE_BUILDTYPE
-    ifdef RELEASE_TYPE
-        # Starting with "LINEAGE_" is optional
-        RELEASE_TYPE := $(shell echo $(RELEASE_TYPE) | sed -e 's|^LINEAGE_||g')
-        LINEAGE_BUILDTYPE := $(RELEASE_TYPE)
+AEON_BUILDTYPE := COMMUNITY
+
+ifneq ($(filter $(CURRENT_DEVICE),$(DEVICE_LIST)),)
+    ifneq ($(AEON_MAINTAINER),)
+        ifneq ($(filter $(AEON_MAINTAINER),$(MAINTAINER_LIST)),)
+            AEON_BUILDTYPE := OFFICIAL
+        endif
     endif
 endif
-
-# Filter out random types, so it'll reset to UNOFFICIAL
-ifeq ($(filter RELEASE NIGHTLY SNAPSHOT EXPERIMENTAL,$(LINEAGE_BUILDTYPE)),)
-    LINEAGE_BUILDTYPE := UNOFFICIAL
-    LINEAGE_EXTRAVERSION :=
-endif
-
-ifeq ($(LINEAGE_BUILDTYPE), UNOFFICIAL)
-    ifneq ($(TARGET_UNOFFICIAL_BUILD_ID),)
-        LINEAGE_EXTRAVERSION := -$(TARGET_UNOFFICIAL_BUILD_ID)
-    endif
-endif
-
-LINEAGE_VERSION_SUFFIX := $(LINEAGE_BUILD_DATE)-$(LINEAGE_BUILDTYPE)$(LINEAGE_EXTRAVERSION)-$(LINEAGE_BUILD)
 
 # Internal version
-LINEAGE_VERSION := $(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR)-$(LINEAGE_VERSION_SUFFIX)
+LINEAGE_VERSION := AeonOS-$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR)-$(shell date +%Y%m%d)-$(LINEAGE_BUILD)-$(AEON_VERSION)-$(AEON_BUILDTYPE)
 
 # Display version
-LINEAGE_DISPLAY_VERSION := $(PRODUCT_VERSION_MAJOR)-$(LINEAGE_VERSION_SUFFIX)
+LINEAGE_DISPLAY_VERSION := $(AEON_VERSION)
 
-# LineageOS version properties
+# AeonOS version properties
 PRODUCT_SYSTEM_PROPERTIES += \
-    ro.lineage.version=$(LINEAGE_VERSION) \
-    ro.lineage.display.version=$(LINEAGE_DISPLAY_VERSION) \
-    ro.lineage.build.version=$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR) \
-    ro.lineage.releasetype=$(LINEAGE_BUILDTYPE)
+    ro.aeon.build.version=$(AEON_VERSION) \
+    ro.aeon.display.version=$(LINEAGE_DISPLAY_VERSION) \
+    ro.aeon.version=$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR) \
+    ro.aeon.releasetype=$(AEON_BUILDTYPE) \
+    ro.aeon.maintainer=$(AEON_MAINTAINER)
