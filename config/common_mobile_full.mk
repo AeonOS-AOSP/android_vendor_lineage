@@ -14,7 +14,6 @@ PRODUCT_PACKAGES += \
     Etar \
     Profiles \
     Recorder \
-    Seedvault \
     Twelve
 
 PRODUCT_NO_CAMERA ?= true
