@@ -10,8 +10,7 @@ $(call inherit-product-if-exists, external/google-fonts/google-sans-flex/fonts.m
 PRODUCT_PACKAGES += \
     Camelot \
     Profiles \
-    Recorder \
-    Seedvault
+    Recorder
 
 ifneq ($(PRODUCT_NO_CAMERA),true)
 PRODUCT_PACKAGES += \
